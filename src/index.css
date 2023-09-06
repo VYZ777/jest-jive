@@ -1,0 +1,263 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+/*
+  2. Remove default margin
+*/
+* {
+  margin: 0;
+}
+/*
+  Typographic tweaks!
+  3. Add accessible line-height
+  4. Improve text rendering
+*/
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+/*
+  5. Improve media defaults
+*/
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+/*
+  6. Remove built-in form typography styles
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+/*
+  7. Avoid text overflows
+*/
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+/*
+  8. Create a root stacking context
+*/
+#root,
+#__next {
+  isolation: isolate;
+}
+
+.cl-internal-17ydaof {
+  background-color: #0c0d21;
+}
+
+.cl-internal-1vbdq0x {
+  color: #cccccc;
+}
+
+.cl-internal-13zhnx0 {
+  color: #ccccccbe;
+}
+
+.cl-internal-b868gt {
+  background-color: #ccccccbe;
+}
+
+.cl-internal-138ov2f {
+  color: #cccccc;
+}
+
+.cl-internal-1xpzc82 {
+  color: #cccccc;
+}
+
+.cl-internal-mdg29y {
+  background-color: #2b2c3d;
+  color: #cccccc;
+}
+
+.cl-internal-18ut2g5 {
+  background-color: #2b2c3d;
+  color: #cccccc;
+}
+
+.cl-internal-ky4qfy {
+  color: #ccccccc3;
+}
+
+.cl-internal-17bz5n6 {
+  color: #cccccc;
+}
+
+.cl-internal-1fsg6zy {
+  background-color: #800080;
+}
+
+.cl-internal-1fsg6zy:hover {
+  background-color: #800080cc;
+}
+
+.cl-internal-15amzqo {
+  color: #800080cc;
+}
+
+.cl-internal-15amzqo:hover {
+  color: #800080;
+}
+
+.cl-internal-b3fm6y {
+  display: none;
+}
+
+.cl-internal-vqjo9j {
+  justify-content: center;
+}
+
+.cl-internal-1vi7rps {
+  background-color: #0c0d21;
+}
+
+.cl-internal-rvp25y {
+  color: #cccccc;
+}
+
+.cl-internal-1ptfnbv {
+  color: #cccccc;
+}
+
+.cl-internal-1yejcov {
+  color: #cccccc;
+}
+
+.cl-internal-1p383is {
+  color: #cccccc;
+}
+
+.cl-internal-8a92hp {
+  color: #cccccc;
+}
+
+.cl-internal-1ho4xv {
+  color: #cccccc;
+}
+
+.cl-internal-rscu79 {
+  color: #cccccc;
+}
+
+.cl-internal-of57g {
+  color: #cccccc;
+}
+
+.cl-internal-fqx4fd {
+  color: #ccccccbb;
+}
+
+.cl-internal-3vf5mz {
+  color: #cccccc;
+}
+
+.cl-internal-1dbixsh {
+  color: #cccccc;
+}
+
+.cl-internal-147wstt {
+  color: #cccccc;
+}
+
+.cl-internal-11ewti4 {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.cl-internal-phfxlr {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.cl-internal-wkkub3 {
+  display: none;
+}
+
+.cl-internal-rx251b {
+  background-color: #0c0d21;
+}
+
+p {
+  color: #cccccc;
+  font-size: 1.5rem;
+  margin-top: 1rem;
+}
+
+h1 {
+  color: #cccccc;
+  font-size: 5rem;
+}
+
+.initials-circle {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  margin-left: 1.5rem;
+  cursor: pointer;
+}
+
+.section:hover {
+  background-color: #2b2c3d;
+  border-radius: 5px;
+}
+@media (min-width: 48em) {
+  .mantine-19hvxgc {
+    height: 100vh;
+  }
+}
+
+.box {
+  width: 15rem;
+  min-height: 3rem;
+  max-height: 20rem;
+  align-items: start;
+  height: auto;
+  background-color: #0c0d21;
+  position: relative;
+  border: 0.0625rem solid #4d4f66;
+  border-radius: 0.25rem;
+  word-wrap: break-word;
+}
+
+.box.arrow-left:after {
+  content: ' ';
+  position: absolute;
+  left: -15px;
+  top: 15px;
+  border-top: 5px solid transparent;
+  border-right: 15px solid #0c0d21;
+  border-left: none;
+  border-bottom: 5px solid transparent;
+  white-space: normal; /* Добавлен стиль для корректного отображения стрелки */
+}
+
+.comment-user {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 1000px;
+}
