@@ -14,19 +14,35 @@ import {
   Title,
   ActionIcon,
 } from '@mantine/core'
-import { IconUserExclamation } from '@tabler/icons-react'
+import {
+  IconUserExclamation,
+  IconCopy,
+  IconLockAccessOff,
+  IconLockAccess,
+} from '@tabler/icons-react'
 import { RightNavigationBar } from './RightNavigationBar'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useAuth } from '@clerk/clerk-react'
 import { notifications } from '@mantine/notifications'
 import { useParams } from 'react-router-dom'
-import { updateInviteKey } from '../../../pages/workspace-slice'
+import {
+  updateInviteKey,
+  updateWorkspaceName,
+} from '../../../pages/workspace-slice'
+import {
+  blockUser,
+  makeAsAdmin,
+  readBlockedUsers,
+  unBlockUser,
+} from './users/users-slice'
 
 export const WorkspaceModal = ({ close, openedWorkspace }) => {
   const [linkData, setLinkData] = useState('security')
   const [show, setShow] = useState(false)
+  const [showBlock, setShowBlock] = useState(false)
   const [value, setValue] = useState('')
+  const [newName, setNewName] = useState('')
   const [focused, setFocused] = useState(false)
   const { userId } = useAuth()
   const { token } = useParams()
@@ -34,11 +50,17 @@ export const WorkspaceModal = ({ close, openedWorkspace }) => {
 
   const workspace = useSelector((state) => state.workspace.workspace)
   const users = useSelector((state) => state.users.users)
-  const singleUser = useSelector((state) => state.users.singleUser)
+  const blockedUsers = useSelector((state) => state.users.blockedUsers)
 
   const handleInput = (event) => {
     setValue(event.target.value)
   }
+  const handleChange = (event) => {
+    setNewName(event.target.value)
+  }
+  useEffect(() => {
+    dispatch(readBlockedUsers({ token }))
+  }, [])
   return (
     <Modal
       opened={openedWorkspace}
@@ -85,63 +107,150 @@ export const WorkspaceModal = ({ close, openedWorkspace }) => {
                       <Space w={1} />
                       <Title size='lg'>Members</Title>
                     </Group>
-                    {users?.map((user) => (
+                    {users
+                      ?.filter((user) => !user?.blocked)
+                      .map((user) => (
+                        <Group key={user?.created_at} position='start'>
+                          <Space w={1} />
+                          <Avatar src={user?.logo_img} />
+                          <Text>{user?.name}</Text>
+                          {user?.user_key !== userId &&
+                            user?.admin !== true && (
+                              <Group>
+                                <Tooltip label='Make as admin'>
+                                  <ActionIcon
+                                    onClick={() => {
+                                      setShow(user.id)
+                                      setShowBlock(null)
+                                    }}
+                                  >
+                                    <IconUserExclamation />
+                                  </ActionIcon>
+                                </Tooltip>
+                                <Tooltip label='Block user'>
+                                  <ActionIcon
+                                    onClick={() => {
+                                      setShowBlock(user.id)
+                                      setShow(null)
+                                    }}
+                                  >
+                                    <IconLockAccess />
+                                  </ActionIcon>
+                                </Tooltip>
+                              </Group>
+                            )}
+                          {show === user.id && (
+                            <Flex
+                              gap='md'
+                              justify='center'
+                              align='center'
+                              direction='row'
+                              wrap='wrap'
+                            >
+                              <Space w={1} />
+                              <Button
+                                onClick={() => {
+                                  dispatch(makeAsAdmin(user))
+                                  setShow(null) // Сбросить show для текущего пользователя
+                                  notifications.show({
+                                    color: 'teal',
+                                    title: 'Success',
+                                    message: 'Admin has been appointed',
+                                    autoClose: 4000,
+                                  })
+                                }}
+                                variant='light'
+                                size='xs'
+                                color='red'
+                              >
+                                Make as admin
+                              </Button>
+                              <Button
+                                onClick={() => setShow(null)} // Сбросить show для текущего пользователя
+                                variant='light'
+                                size='xs'
+                              >
+                                Cancel
+                              </Button>
+                            </Flex>
+                          )}
+                          {showBlock === user.id && (
+                            <Flex
+                              gap='md'
+                              justify='center'
+                              align='center'
+                              direction='row'
+                              wrap='wrap'
+                            >
+                              <Space w={1} />
+                              <Button
+                                onClick={() => {
+                                  dispatch(blockUser(user))
+                                  setShowBlock(null) // Сбросить show для текущего пользователя
+                                  notifications.show({
+                                    color: 'teal',
+                                    title: 'Success',
+                                    message: 'User has been blocked',
+                                    autoClose: 4000,
+                                  })
+                                }}
+                                variant='light'
+                                size='xs'
+                                color='red'
+                              >
+                                Block user
+                              </Button>
+                              <Button
+                                onClick={() => setShowBlock(null)} // Сбросить show для текущего пользователя
+                                variant='light'
+                                size='xs'
+                              >
+                                Cancel
+                              </Button>
+                            </Flex>
+                          )}
+                        </Group>
+                      ))}
+                  </>
+                  <Space h={20} />
+                  <>
+                    {blockedUsers.length !== 0 && (
+                      <Group>
+                        <Space w={1} />
+                        <Title size='lg'>Blocked users</Title>
+                      </Group>
+                    )}
+                    {blockedUsers?.map((user) => (
                       <Group key={user?.created_at} position='start'>
                         <Space w={1} />
                         <Avatar src={user?.logo_img} />
                         <Text>{user?.name}</Text>
-                        {user?.user_key !== userId && user?.admin !== true && (
-                          <Tooltip label='Make as admin'>
-                            <ActionIcon onClick={() => setShow(true)}>
-                              <IconUserExclamation />
-                            </ActionIcon>
-                          </Tooltip>
-                        )}
-                      </Group>
-                    ))}
-                    {show && (
-                      <Flex
-                        // mih={50}
-                        gap='md'
-                        justify='center'
-                        align='center'
-                        direction='row'
-                        wrap='wrap'
-                      >
-                        <Space w={1} />
-                        <Button
+                        <ActionIcon
                           onClick={() => {
-                            setShow(false)
+                            dispatch(unBlockUser(user))
                             notifications.show({
                               color: 'teal',
-                              title: 'Succes',
-                              message: 'Admin has been appointed',
+                              title: 'Success',
+                              message: 'User has been unblocked',
                               autoClose: 4000,
                             })
                           }}
-                          variant='light'
-                          size='xs'
-                          color='red'
                         >
-                          Make as admin
-                        </Button>
-                        <Button
-                          onClick={() => setShow(false)}
-                          variant='light'
-                          size='xs'
-                        >
-                          Cancel
-                        </Button>
-                      </Flex>
-                    )}
+                          <Tooltip label='Unblock user'>
+                            <IconLockAccessOff />
+                          </Tooltip>
+                        </ActionIcon>
+                      </Group>
+                    ))}
                   </>
 
-                  <Space h={20} />
+                  {blockedUsers.length !== 0 && <Space h={20} />}
                   <>
                     <Group>
                       <Space w={1} />
                       <Title size='lg'>Links</Title>
                     </Group>
+
                     <Group position='start'>
                       <Space w={1} />
                       <TextInput
@@ -161,6 +270,17 @@ export const WorkspaceModal = ({ close, openedWorkspace }) => {
                         label='Your invitation key'
                         placeholder={workspace?.invite_key}
                       />
+                      <ActionIcon
+                        onClick={() =>
+                          navigator.clipboard.writeText(
+                            `https://1103-37-48-50-9.ngrok-free.app/workspace/${workspace?.workspace_key}/invite/${workspace?.invite_key}`
+                          )
+                        }
+                      >
+                        <Tooltip label='Copy invite link'>
+                          <IconCopy />
+                        </Tooltip>
+                      </ActionIcon>
                     </Group>
                     <Flex justify='flex-end'>
                       <Group position='end'>
@@ -203,9 +323,39 @@ export const WorkspaceModal = ({ close, openedWorkspace }) => {
                 <Text>Help/Support</Text>
               </Group>
             ) : linkData === 'settings' ? (
-              <Group position='center'>
-                <Text>Settings</Text>
-              </Group>
+              <Grid.Col span={9}>
+                <Group position='start'>
+                  <Title size='lg'>General</Title>
+                </Group>
+                <Space h={20} />
+                <Group position='start'>
+                  <TextInput
+                    value={newName}
+                    maxLength={20}
+                    placeholder={workspace?.name}
+                    w={300}
+                    label='Change workspace name'
+                    onChange={handleChange}
+                  />
+                </Group>
+                <Space h={15} />
+                <Button
+                  disabled={!newName.trim()}
+                  size='xs'
+                  variant='light'
+                  onClick={() => {
+                    dispatch(updateWorkspaceName({ token, newName }))
+                    notifications.show({
+                      color: 'teal',
+                      title: 'Succes',
+                      message: 'Workspace name was updated',
+                      autoClose: 4000,
+                    })
+                  }}
+                >
+                  Save changes
+                </Button>
+              </Grid.Col>
             ) : (
               ''
             )}

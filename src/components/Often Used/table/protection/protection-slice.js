@@ -15,8 +15,6 @@ export const readSecuredInfo = createAsyncThunk(
         .eq('user_key', userId)
         .eq('workspace_id', workspace[0]?.id)
       return user_data
-    } else {
-      return null
     }
   }
 )

@@ -63,9 +63,9 @@ export const Table = () => {
     setRenderTaskCount(0)
   }
   const openChatModal = (item) => {
-    console.log('Set user', item)
     setSelectedUser(item)
     dispatch(readMessageDataReceived({ user: item, selectedUser }))
+    dispatch(readMessageDataReceivedNotRead({ user, userId }))
     if (renderCount === 0) {
       setRenderCount(renderCount + 1)
     }
@@ -82,30 +82,25 @@ export const Table = () => {
   }
 
   useEffect(() => {
-    if (!initialLoad) {
-      sessionStorage.setItem('initialLoad', 'true')
-      window.location.reload()
+    if (userId) {
+      dispatch(readTaskData({ token }))
+      dispatch(readAllUsersData({ token }))
+      dispatch(readUserData({ userId }))
+      dispatch(readMessageDataReceivedNotRead({ user, userId }))
+
+      const messageSub = supabase
+        .channel('sending-message')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages' },
+          (payload) => {
+            dispatch(readMessageDataReceived({ user, selectedUser }))
+            dispatch(readMessageDataReceivedNotRead({ user, userId }))
+          }
+        )
+        .subscribe()
     }
-  }, [initialLoad])
-
-  useEffect(() => {
-    dispatch(readTaskData({ token }))
-    dispatch(readAllUsersData({ token }))
-    dispatch(readUserData({ userId }))
-    dispatch(readMessageDataReceivedNotRead({ user, userId }))
-
-    const messageSub = supabase
-      .channel('sending-message')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          dispatch(readMessageDataReceived({ user, selectedUser }))
-          dispatch(readMessageDataReceivedNotRead({ user, userId }))
-        }
-      )
-      .subscribe()
-  }, [selectedUser])
+  }, [])
 
   useEffect(() => {
     if (renderTaskCount > 0) {
@@ -121,94 +116,94 @@ export const Table = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {allUsers && (
-        <>
-          <HeaderPanel />
-          <div style={{ display: 'flex', flex: 1 }}>
-            <Menu
-              setSelectedCategory={setSelectedCategory}
-              selectedCategory={selectedCategory}
-              allUsers={allUsers}
-              setLinkData={setLinkData}
-              openWorkspaceModal={openWorkspaceModal}
-              token={token}
-            />
-            {linkData === 'tasks' ? (
-              <>
-                {tasks?.length ? (
-                  <div>
-                    <div style={{ marginTop: '0.30rem' }}></div>
-                    <SheetsTask
-                      selectedCategory={selectedCategory}
-                      toggle={toggle}
-                      token={token}
-                      openTaskModal={openTaskModal}
-                      setSelectedTask={setSelectedTask}
-                    />
-                  </div>
-                ) : (
-                  <h1
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      fontSize: '4rem',
-                    }}
-                  >
-                    Oops... You have no any tasks
-                  </h1>
-                )}
-              </>
-            ) : linkData === 'users' ? (
-              <div>
-                <div style={{ marginTop: '0.30rem' }}></div>
-                <Users openChatModal={openChatModal} data={allUsers} />
-              </div>
-            ) : linkData === 'inbox' ? (
-              <Inbox openChatModal={openChatModal} data={unread} />
-            ) : (
-              <h1
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fontSize: '4rem',
-                }}
-              >
-                Oops... You have no any messages
-              </h1>
-            )}
-          </div>
-          {selectedTask && ( // Открываем модальное окно, если opened === true
-            <TaskModal
-              selectedTask={selectedTask}
-              opened={opened}
-              toggle={openTaskModal}
-              close={closeTaskModal}
-              token={token}
-              user={user}
-            />
-          )}
-          <Chat
-            user={user}
-            selectedUser={selectedUser}
-            opened={opened}
-            toggle={openChatModal}
-            close={closeChatModal}
+      <>
+        <HeaderPanel />
+        <div style={{ display: 'flex', flex: 1 }}>
+          <Menu
+            setSelectedCategory={setSelectedCategory}
+            selectedCategory={selectedCategory}
+            allUsers={allUsers}
+            setLinkData={setLinkData}
+            openWorkspaceModal={openWorkspaceModal}
             token={token}
           />
-          <WorkspaceModal
-            openedWorkspace={openedWorkspace}
+          {linkData === 'tasks' ? (
+            <>
+              {tasks?.length ? (
+                <div>
+                  <div style={{ marginTop: '0.30rem' }}></div>
+                  <SheetsTask
+                    selectedCategory={selectedCategory}
+                    toggle={toggle}
+                    token={token}
+                    openTaskModal={openTaskModal}
+                    setSelectedTask={setSelectedTask}
+                  />
+                </div>
+              ) : (
+                <h1
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontSize: '4rem',
+                  }}
+                >
+                  Oops... You have no any tasks
+                </h1>
+              )}
+            </>
+          ) : linkData === 'users' ? (
+            <div>
+              <div style={{ marginTop: '0.30rem' }}></div>
+              {allUsers && (
+                <Users openChatModal={openChatModal} data={allUsers} />
+              )}
+            </div>
+          ) : linkData === 'inbox' ? (
+            <Inbox openChatModal={openChatModal} data={unread} />
+          ) : (
+            <h1
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontSize: '4rem',
+              }}
+            >
+              Oops... You have no any messages
+            </h1>
+          )}
+        </div>
+        {selectedTask && ( // Открываем модальное окно, если opened === true
+          <TaskModal
+            selectedTask={selectedTask}
             opened={opened}
-            open={openWorkspaceModal}
-            close={closeWorkspaceModal}
+            toggle={openTaskModal}
+            close={closeTaskModal}
+            token={token}
+            user={user}
           />
-        </>
-      )}
+        )}
+        <Chat
+          user={user}
+          selectedUser={selectedUser}
+          opened={opened}
+          toggle={openChatModal}
+          close={closeChatModal}
+          token={token}
+        />
+        <WorkspaceModal
+          openedWorkspace={openedWorkspace}
+          opened={opened}
+          open={openWorkspaceModal}
+          close={closeWorkspaceModal}
+        />
+      </>
     </div>
   )
 }

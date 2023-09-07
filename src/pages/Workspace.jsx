@@ -37,9 +37,9 @@ export const Workspace = () => {
   const navigate = useNavigate()
   const { user, isSignedIn } = useUser()
   const { userId } = useAuth()
-  const users = useSelector((state) => state.users.users)
+  const singleUser = useSelector((state) => state.users.singleUser)
   const dispatch = useDispatch()
-  console.log(users)
+
   // генерация рандомного ключа в 20 символов
   const generateRandomString = (length) => {
     const charset =
@@ -79,7 +79,7 @@ export const Workspace = () => {
 
   // добавляем воркспейс в бд при нажатии на кнопку
   const handleSubmit = () => {
-    if (users?.workspace_id > 0) {
+    if (singleUser?.workspace_id > 0) {
       notifications.show({
         icon: <IconX size='1.1rem' />,
         color: 'red',

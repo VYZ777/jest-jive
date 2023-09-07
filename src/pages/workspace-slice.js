@@ -22,13 +22,11 @@ export const insertWorspaceData = createAsyncThunk(
         return data[0]
       })
       .then(async (response) => {
-        console.log(response)
         const { data: user_data, error } = await supabase
           .from('user_data')
           .update({ workspace_id: response?.id })
           .eq('user_key', userId)
           .select()
-        console.log(user_data)
       })
   }
 )
@@ -52,6 +50,18 @@ export const updateInviteKey = createAsyncThunk(
       .update({ invite_key: value })
       .eq('workspace_key', token)
       .select()
+    return data[0]
+  }
+)
+export const updateWorkspaceName = createAsyncThunk(
+  'workspace/updateWorkspaceName',
+  async ({ newName, token }) => {
+    const { data, error } = await supabase
+      .from('workspace')
+      .update({ name: newName })
+      .eq('workspace_key', token)
+      .select()
+    return data[0]
   }
 )
 
@@ -69,6 +79,9 @@ export const workspaceSlice = createSlice({
       state.workspace = action.payload
     })
     builder.addCase(updateInviteKey.fulfilled, (state, action) => {
+      state.workspace = action.payload
+    })
+    builder.addCase(updateWorkspaceName.fulfilled, (state, action) => {
       state.workspace = action.payload
     })
   },

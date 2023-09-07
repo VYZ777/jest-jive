@@ -7,12 +7,9 @@ import {
   IconCheck,
 } from '@tabler/icons-react'
 import { Group, Avatar, Text, Menu, UnstyledButton, rem } from '@mantine/core'
-import { useSelector } from 'react-redux'
 import { notifications } from '@mantine/notifications'
 
-export const WorkspaceButton = ({ openWorkspaceModal }) => {
-  const workspace = useSelector((state) => state.workspace.workspace)
-
+export const WorkspaceButton = ({ workspace, openWorkspaceModal }) => {
   function splitTextIntoArrays(text) {
     if (text) {
       const words = text.split(' ')
@@ -28,7 +25,7 @@ export const WorkspaceButton = ({ openWorkspaceModal }) => {
   let initials = ['', ''] // По умолчанию инициалы пустые
 
   if (workspace?.name) {
-    initials = splitTextIntoArrays(workspace.name)
+    initials = splitTextIntoArrays(workspace?.name)
   }
 
   return (

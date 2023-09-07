@@ -61,7 +61,6 @@ export const deleteTaskData = createAsyncThunk(
       .from('tasks')
       .delete()
       .eq('id', selection[0])
-    console.log(error)
 
     return selection[0]
   }

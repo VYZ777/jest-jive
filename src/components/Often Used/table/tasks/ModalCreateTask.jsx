@@ -35,7 +35,6 @@ export const ModalCreateTask = ({ token, allUsers }) => {
   const [descriptionValue, setDescriptionValue] = useState('')
   const categoryData = useSelector((state) => state.category.categories)
   const dispatch = useDispatch()
-
   useEffect(() => {
     dispatch(readCategoryData({ token }))
   }, [])

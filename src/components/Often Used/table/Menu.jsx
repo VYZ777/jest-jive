@@ -18,6 +18,7 @@ import { readWorkspaceData } from '../../../pages/workspace-slice'
 import { ModalCreateTask } from './tasks/ModalCreateTask'
 import { WorkspaceButton } from './WorkspaceButton'
 import { useDisclosure } from '@mantine/hooks'
+import { readCategoryData } from './categories/category-slice'
 
 const useStyles = createStyles((theme) => ({
   navbar: {
@@ -163,29 +164,13 @@ export const Menu = ({
   const unread = useSelector((state) => state.message.unread)
   const [opened, { open, close }] = useDisclosure(false)
 
-  function splitTextIntoArrays(text) {
-    if (text) {
-      const words = text.split(' ')
-      const firstArray = [words[0]?.[0]?.toUpperCase() || '']
-      const secondArray = [words[1]?.[0]?.toUpperCase() || '']
-      return [firstArray, secondArray]
-    } else {
-      console.log('Text is empty')
-    }
-  }
-
-  let initials = ['', ''] // По умолчанию инициалы пустые
-
-  if (workspace?.name) {
-    initials = splitTextIntoArrays(workspace.name)
-  }
-
   const handleChooseCategory = (value) => {
     setSelectedCategory([value])
   }
 
   useEffect(() => {
     dispatch(readWorkspaceData({ token }))
+    dispatch(readCategoryData({ token }))
   }, [])
 
   const links = [
@@ -198,7 +183,7 @@ export const Menu = ({
     {
       icon: IconInbox,
       label: 'Inbox',
-      notifications: unread?.length,
+      notifications: unread ? unread.length : 0,
       path: 'inbox',
     },
     {
@@ -247,7 +232,10 @@ export const Menu = ({
       style={{ marginTop: '-1.87rem', marginBottom: '-5rem' }}
     >
       <Navbar.Section className={classes.section}>
-        <WorkspaceButton openWorkspaceModal={openWorkspaceModal} />
+        <WorkspaceButton
+          workspace={workspace}
+          openWorkspaceModal={openWorkspaceModal}
+        />
       </Navbar.Section>
       <Navbar.Section className={classes.section}>
         <div className={classes.mainLinks}>{mainLinks}</div>
@@ -276,7 +264,7 @@ export const Menu = ({
         </NavLink>
       </Navbar.Section>
       <Navbar.Section>
-        <ModalCreateTask allUsers={allUsers} token={token} />
+        {allUsers && <ModalCreateTask allUsers={allUsers} token={token} />}
       </Navbar.Section>
     </Navbar>
   )

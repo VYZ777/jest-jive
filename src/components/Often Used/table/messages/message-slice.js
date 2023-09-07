@@ -32,17 +32,14 @@ export const readMessageDataReceived = createAsyncThunk(
 export const readMessageDataReceivedNotRead = createAsyncThunk(
   'message/readMessageDataReceivedNotRead',
   async ({ user, userId }, thunkApi) => {
-    let messages
-    await thunkApi.dispatch(readUserData({ userId })).then(async (response) => {
-      let { data: fetchedMessages, error } = await supabase.rpc(
-        'get_from_user_messages',
-        {
-          userid: response?.payload?.id,
-        }
-      )
-      messages = fetchedMessages
-    })
-    return messages
+    const response = await thunkApi.dispatch(readUserData({ userId }))
+    let { data: fetchedMessages, error } = await supabase.rpc(
+      'get_from_user_messages',
+      {
+        userid: response?.payload?.id,
+      }
+    )
+    return fetchedMessages
   }
 )
 

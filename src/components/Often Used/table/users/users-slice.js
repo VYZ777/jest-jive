@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { supabase } from '../../../../libs/supabaseClient'
+import { readWorkspaceData } from '../../../../pages/workspace-slice'
 
 export const readUserData = createAsyncThunk(
   'users/readUserData',
@@ -34,7 +35,6 @@ export const insertAdminData = createAsyncThunk(
           },
         ])
         .select()
-      console.log(data[0])
       return data[0]
     } else {
       null
@@ -65,32 +65,73 @@ export const insertMemberData = createAsyncThunk(
         ])
         .select()
       return data
-    } else {
-      null
     }
   }
 )
 
 export const readAllUsersData = createAsyncThunk(
   'users/readAllUsersData',
+  async ({ token }, thunkApi) => {
+    const response = await thunkApi.dispatch(readWorkspaceData({ token }))
+    let { data: user_data } = await supabase
+      .from('user_data')
+      .select()
+      .eq('workspace_id', response?.payload?.id)
+    return user_data
+  }
+)
+
+export const makeAsAdmin = createAsyncThunk(
+  'users/makeAsAdmin',
+  async (user) => {
+    const { data, error } = await supabase
+      .from('user_data')
+      .update({ admin: true })
+      .eq('id', user?.id)
+      .select()
+  }
+)
+export const blockUser = createAsyncThunk('users/blockUser', async (user) => {
+  const { data, error } = await supabase
+    .from('user_data')
+    .update({ blocked: true })
+    .eq('id', user?.id)
+    .select()
+  return data
+})
+export const unBlockUser = createAsyncThunk(
+  'users/unBlockUser',
+  async (user) => {
+    const { data, error } = await supabase
+      .from('user_data')
+      .update({ blocked: false })
+      .eq('id', user?.id)
+      .select()
+    return data
+  }
+)
+export const readBlockedUsers = createAsyncThunk(
+  'users/readBlockedUsers',
   async ({ token }) => {
     let { data: workspace } = await supabase
       .from('workspace')
       .select()
       .eq('workspace_key', token)
-    let { data: user_data } = await supabase
+
+    let { data: user_data, error } = await supabase
       .from('user_data')
       .select()
       .eq('workspace_id', workspace[0]?.id)
+      .eq('blocked', true)
     return user_data
   }
 )
-
 export const usersSlice = createSlice({
   name: 'users',
   initialState: {
     singleUser: [],
     users: [],
+    blockedUsers: [],
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -105,6 +146,26 @@ export const usersSlice = createSlice({
     })
     builder.addCase(readAllUsersData.fulfilled, (state, action) => {
       state.users = action.payload
+    })
+    builder.addCase(blockUser.fulfilled, (state, action) => {
+      state.blockedUsers = [...state.blockedUsers, ...action.payload]
+      state.users = state.users.filter(
+        (item) => item.id !== action.payload?.[0]?.id
+      )
+    })
+    builder.addCase(unBlockUser.fulfilled, (state, action) => {
+      state.blockedUsers = state.blockedUsers.filter(
+        (item) => item.id !== action.payload?.[0]?.id
+      )
+      state.users = state.users.map((user) => {
+        if (user.id === action.payload[0]?.id) {
+          return action.payload
+        }
+        return user
+      })
+    })
+    builder.addCase(readBlockedUsers.fulfilled, (state, action) => {
+      state.blockedUsers = action.payload
     })
   },
 })
