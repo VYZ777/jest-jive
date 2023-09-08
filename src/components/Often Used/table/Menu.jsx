@@ -162,6 +162,7 @@ export const Menu = ({
   const tasks = useSelector((state) => state.tasks.tasks)
   const categories = useSelector((state) => state.category.categories)
   const unread = useSelector((state) => state.message.unread)
+  const filteredUsers = allUsers.filter((user) => !user.blocked)
   const [opened, { open, close }] = useDisclosure(false)
 
   const handleChooseCategory = (value) => {
@@ -169,8 +170,11 @@ export const Menu = ({
   }
 
   useEffect(() => {
-    dispatch(readWorkspaceData({ token }))
-    dispatch(readCategoryData({ token }))
+    dispatch(readWorkspaceData({ token })).then((response) => {
+      if (response.payload) {
+        dispatch(readCategoryData({ token }))
+      }
+    })
   }, [])
 
   const links = [
@@ -189,7 +193,7 @@ export const Menu = ({
     {
       icon: IconUsers,
       label: 'Users',
-      notifications: allUsers?.length,
+      notifications: filteredUsers?.length,
       path: 'users',
     },
   ]

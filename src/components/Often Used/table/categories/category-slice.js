@@ -1,18 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { supabase } from '../../../../libs/supabaseClient'
+import { readWorkspaceData } from '../../../../pages/workspace-slice'
 
 export const readCategoryData = createAsyncThunk(
   'category/readCategoryData',
-  async ({ token }) => {
-    let { data: workspace } = await supabase
-      .from('workspace')
-      .select()
-      .eq('workspace_key', token)
+  async ({ token }, thunkApi) => {
+    const response = await thunkApi.dispatch(readWorkspaceData({ token }))
 
     let { data: categories } = await supabase
       .from('categories')
       .select()
-      .eq('workspace_id', workspace[0]?.id)
+      .eq('workspace_id', response?.payload?.id)
     return categories
   }
 )
@@ -20,14 +18,11 @@ export const readCategoryData = createAsyncThunk(
 export const insertCategoryData = createAsyncThunk(
   'category/insertCategoryData',
   async ({ item, token }, thunkApi) => {
-    let { data: workspace } = await supabase
-      .from('workspace')
-      .select()
-      .eq('workspace_key', token)
+    const response = await thunkApi.dispatch(readWorkspaceData({ token }))
 
     const { data } = await supabase
       .from('categories')
-      .insert([{ name: item?.label, workspace_id: workspace[0]?.id }])
+      .insert([{ name: item?.label, workspace_id: response?.payload?.id }])
       .select()
     return data[0]
   }

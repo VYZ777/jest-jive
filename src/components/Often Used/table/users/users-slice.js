@@ -112,16 +112,12 @@ export const unBlockUser = createAsyncThunk(
 )
 export const readBlockedUsers = createAsyncThunk(
   'users/readBlockedUsers',
-  async ({ token }) => {
-    let { data: workspace } = await supabase
-      .from('workspace')
-      .select()
-      .eq('workspace_key', token)
-
+  async ({ token }, thunkApi) => {
+    const response = await thunkApi.dispatch(readWorkspaceData({ token }))
     let { data: user_data, error } = await supabase
       .from('user_data')
       .select()
-      .eq('workspace_id', workspace[0]?.id)
+      .eq('workspace_id', response?.payload?.id)
       .eq('blocked', true)
     return user_data
   }
@@ -157,13 +153,9 @@ export const usersSlice = createSlice({
       state.blockedUsers = state.blockedUsers.filter(
         (item) => item.id !== action.payload?.[0]?.id
       )
-      state.users = state.users.map((user) => {
-        if (user.id === action.payload[0]?.id) {
-          return action.payload
-        }
-        return user
-      })
+      state.users = [...state.users, ...action.payload]
     })
+
     builder.addCase(readBlockedUsers.fulfilled, (state, action) => {
       state.blockedUsers = action.payload
     })

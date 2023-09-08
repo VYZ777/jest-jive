@@ -136,14 +136,17 @@ export const Workspace = () => {
                     >
                       <div>
                         <IconAlertCircle
-                          size='1rem'
-                          style={{ display: 'block', opacity: 0.5 }}
+                          style={{
+                            display: 'block',
+                            opacity: 0.5,
+                          }}
                         />
                       </div>
                     </Tooltip>
                   }
                   onChange={handleInputChange}
                   placeholder='Type workspace name'
+                  maxLength={20}
                 />
                 <Tooltip
                   offset={10}
@@ -152,7 +155,7 @@ export const Workspace = () => {
                   position='right'
                 >
                   <ActionIcon size='lg' onClick={toggle}>
-                    <AiOutlineUserAdd size='xl' />
+                    <AiOutlineUserAdd style={{ scale: '1.2' }} />
                   </ActionIcon>
                 </Tooltip>
                 <Collapse transitionDuration={500} in={opened}>
@@ -166,7 +169,7 @@ export const Workspace = () => {
                           placeholder='Type member email'
                         />
                         <ActionIcon size='lg'>
-                          <AiOutlineArrowRight size='xl' />
+                          <AiOutlineArrowRight style={{ scale: '1.2' }} />
                         </ActionIcon>
                       </Group>
                       <Divider
@@ -189,7 +192,7 @@ export const Workspace = () => {
                                 `https://1103-37-48-50-9.ngrok-free.app/workspace/${randomString}/invite/${tokenInvite}`
                               )
                               notifications.show({
-                                icon: <IconCheck size='1.1rem' />,
+                                icon: <IconCheck style={{ scale: '1.2' }} />,
                                 color: 'teal',
                                 title: 'Succes',
                                 message: 'Copied',
@@ -197,7 +200,7 @@ export const Workspace = () => {
                               })
                             }}
                           >
-                            <AiFillCopy size='sm' />
+                            <AiFillCopy style={{ scale: '1.2' }} />
                           </ActionIcon>
                         </Tooltip>
                       </Group>

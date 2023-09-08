@@ -14,6 +14,7 @@ import { readTaskData } from '../components/Often Used/table/tasks/tasks-slice'
 import {
   readAllUsersData,
   readUserData,
+  readBlockedUsers,
 } from '../components/Often Used/table/users/users-slice'
 import { TaskModal } from '../components/Often Used/table/tasks/TaskModal'
 import { useDisclosure } from '@mantine/hooks'
@@ -23,6 +24,7 @@ import { useUser, useAuth } from '@clerk/clerk-react'
 import { Inbox } from '../components/Often Used/table/messages/Inbox'
 import { supabase } from '../libs/supabaseClient'
 import { WorkspaceModal } from '../components/Often Used/table/WorkspaceModal'
+import { readWorkspaceData } from './workspace-slice'
 
 export const Table = () => {
   const [linkData, setLinkData] = useState('tasks')
@@ -83,10 +85,15 @@ export const Table = () => {
 
   useEffect(() => {
     if (userId) {
-      dispatch(readTaskData({ token }))
-      dispatch(readAllUsersData({ token }))
-      dispatch(readUserData({ userId }))
-      dispatch(readMessageDataReceivedNotRead({ user, userId }))
+      dispatch(readWorkspaceData({ token })).then((response) => {
+        if (response.payload) {
+          dispatch(readTaskData({ token }))
+          dispatch(readAllUsersData({ token }))
+          dispatch(readUserData({ userId }))
+          dispatch(readBlockedUsers({ token }))
+          dispatch(readMessageDataReceivedNotRead({ user, userId }))
+        }
+      })
 
       const messageSub = supabase
         .channel('sending-message')

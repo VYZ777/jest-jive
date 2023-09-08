@@ -1,17 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { supabase } from '../../../../libs/supabaseClient'
+import { readWorkspaceData } from '../../../../pages/workspace-slice'
 
 export const readTaskData = createAsyncThunk(
   'tasks/readTaskData',
-  async ({ token }) => {
-    let { data: workspace } = await supabase
-      .from('workspace')
-      .select()
-      .eq('workspace_key', token)
+  async ({ token }, thunkApi) => {
+    const response = await thunkApi.dispatch(readWorkspaceData({ token }))
     let { data: tasks, error } = await supabase
       .from('tasks')
       .select(`*, user_data(*), categories(*)`)
-      .eq('workspace_id', workspace[0]?.id)
+      .eq('workspace_id', response?.payload?.id)
     return tasks
   }
 )

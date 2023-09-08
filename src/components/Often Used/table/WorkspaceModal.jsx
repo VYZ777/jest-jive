@@ -58,9 +58,7 @@ export const WorkspaceModal = ({ close, openedWorkspace }) => {
   const handleChange = (event) => {
     setNewName(event.target.value)
   }
-  useEffect(() => {
-    dispatch(readBlockedUsers({ token }))
-  }, [])
+
   return (
     <Modal
       opened={openedWorkspace}
